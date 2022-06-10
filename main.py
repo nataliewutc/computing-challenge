@@ -42,3 +42,9 @@ X_training = X[:training_size]
 X_test = X[training_size:]
 y_training = y[:training_size]
 y_test = y[training_size:]
+
+model = LogisticRegression(multi_class = 'multinomial', solver='saga')
+model.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+regressor.score(X_test, y_pred)
+
