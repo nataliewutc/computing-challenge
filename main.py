@@ -1,3 +1,18 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn import svm
+from typing import Union
+from scipy.stats import norm
+import seaborn as sns
+from typing import List
+import scipy.fft
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+
 #Data cleaning 
 data = pd.read_csv('Crystal_structure.csv')
 data_replaced = data.copy()
