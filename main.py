@@ -38,9 +38,9 @@ y = data_minmax[y_col].to_numpy()
 
 training_fraction = 0.1 #can be changed
 training_size =int(training_fraction*len(data_minmax))
-X_training = X[:training_size]
+X_train = X[:training_size]
 X_test = X[training_size:]
-y_training = y[:training_size]
+y_train = y[:training_size]
 y_test = y[training_size:]
 
 model = LogisticRegression(multi_class = 'multinomial', solver='saga')
