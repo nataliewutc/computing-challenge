@@ -15,26 +15,47 @@ from sklearn.model_selection import train_test_split
 
 #Data cleaning 
 data = pd.read_csv('Crystal_structure.csv')
-data_replaced = data.copy()
-data_without_columns = data_replaced.drop(columns= ['In literature','v(A)','v(B)','τ','Compound', 'A', 'B'])
+data_to_clean = data.copy()
+data_without_columns = data_to_clean.drop(columns= ['In literature','v(A)','v(B)','τ', 'Compound'])
 data_without_rows = data_without_columns.dropna()
 data_replace_dash = data_without_rows.replace('-',np.nan)
 data_replace_zero = data_replace_dash.replace(0, np.nan)
 data_replace = data_replace_zero.dropna()
 
-'''#add one hot encoder
-data_onehotencoded = data_replace.copy()
-classes = set(data_onehotencoded['Lowest distortion'])
-for cls in classes:
-    data_onehotencoded[cls] = data_onehotencoded['Lowest distortion'].apply(lambda x: 1 if x == cls else 0)
-del data_onehotencoded['Lowest distortion']
-#print(data_onehotencoded)
-data_onehotencoded.to_csv('Crystal_structure_preprocessed.csv')'''
+#Encoding 
+class Encoder:
+    def __init__(self, kind: str = 'onehot'):
+        # make sure kind is either onehot or label
+        assert kind in ['onehot', 'label']
+        self.kind = kind
+        
+    def encode(self, data: pd.Series) -> Union[pd.DataFrame, pd.Series]:
+        if self.kind == 'onehot':
+            categories = set(data)
+            new = pd.DataFrame()
+            for column in list(categories):
+                new[column] = data.apply(lambda x: 1 if x == column else 0)
+            
+        else:
+            categories = list(set(data))
+            new = data.apply(lambda x: categories.index(x))
+            new = pd.DataFrame(new)
+            del new[column]
+            
+        return new
+
+ohe_encoded = data_replace.copy()
+a = Encoder('onehot').encode(ohe_encoded['A'])
+b = Encoder('onehot').encode(ohe_encoded['B'])
+del ohe_encoded['A']
+del ohe_encoded['B']
+ohe_encoded = pd.concat([ohe_encoded, a], axis=1)
+ohe_encoded = pd.concat([ohe_encoded, b], axis=1)
 
 #Min-max scaling 
-data_minmax = data_replace.copy()
+data_minmax = ohe_encoded.copy()
 name_columns = list(data_minmax.columns)
-for i in range(3, len(data_minmax.columns)-5):  
+for i in range(len(data_minmax[:10])):  
     min_value = min(data_minmax[name_columns[i]])
     max_value = max(data_minmax[name_columns[i]])
     diff = int(max_value) - int(min_value)
@@ -43,21 +64,23 @@ for i in range(3, len(data_minmax.columns)-5):
 #Training and testing data split 
 X = data_minmax[name_columns[:10]].to_numpy()
 y = data_minmax[name_columns[10]].to_numpy()
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=1)
-# one-hot encode input variables
-onehot_encoder = OneHotEncoder(handle_unknown = 'ignore')
-onehot_encoder.fit(X_train)
-X_train = onehot_encoder.transform(X_train)
-X_test = onehot_encoder.transform(X_test)
-# ordinal encode target variable
-label_encoder = LabelEncoder()
-label_encoder.fit(y_train)
-y_train = label_encoder.transform(y_train)
-y_test = label_encoder.transform(y_test)
+# Logistic regression 
 classifier = LogisticRegression().fit(X_train, y_train)
-y_pred = model.predict(X_test)
+y_pred = classifier.predict(X_test)
+score = classifier.score(X_test, y_test)
+print(score)
 accuracy = accuracy_score(y_test, y_pred)
 print('Accuracy: %.2f' % (accuracy*100))
+
+#KNN 
+
+#Random forest 
+
+#SVM 
+
+
+
 
 
