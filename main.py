@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from typing import Union
+import sklearn.metrics
 
 #Data cleaning 
 data = pd.read_csv('Crystal_structure.csv')
@@ -117,7 +118,14 @@ print('SVM score: %.2f' % (svm_score*100))
 svm_accuracy = accuracy_score(y_test, svm_y_pred)
 print('SVM Accuracy: %.2f' % (svm_accuracy*100))
 
-
+#Classification report 
+target_names = ['cubic', 'tetragonal', 'orthorhombic','rhombohedral']
+logistic_report = sklearn.metrics.classification_report( y_test, logistic_y_pred, target_names=target_names) 
+knn_report = sklearn.metrics.classification_report( y_test, knn_y_pred, target_names=target_names) 
+forest_report = sklearn.metrics.classification_report( y_test, forest_y_pred, target_names=target_names) 
+svm_report = sklearn.metrics.classification_report( y_test, svm_y_pred, target_names=target_names) 
+print(knn_report)
+print(forest_report)
 
 
 
