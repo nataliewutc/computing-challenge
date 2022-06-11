@@ -34,13 +34,11 @@ class Encoder:
             new = pd.DataFrame()
             for column in list(categories):
                 new[column] = data.apply(lambda x: 1 if x == column else 0)
-            
         else:
             categories = list(set(data))
             new = data.apply(lambda x: categories.index(x))
             new = pd.DataFrame(new)
             del new[column]
-            
         return new
 
 ohe_encoded = data_replace.copy()
@@ -63,7 +61,7 @@ for i in range(len(data_minmax[:10])):
 #Training and testing data split 
 X = data_minmax[name_columns[:10]].to_numpy()
 y = data_minmax[name_columns[10]].to_numpy()
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=100)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state = 100)
 
 # Logistic regression 
 logistic = LogisticRegression().fit(X_train, y_train)
@@ -90,7 +88,7 @@ for k in k_values:
 scores = [model.score(X_test, y_test) for model in models]
 highest_score = max(scores)
 index = scores.index(highest_score)
-best_model = KNeighborsClassifier(n_neighbors=index).fit(X_train, y_train)
+best_model = KNeighborsClassifier(n_neighbors=k_values[index]).fit(X_train, y_train)
 fig, ax =plt.subplots()
 ax.bar(k_values, scores)
 ax.set_xlabel('Number of Neighbours')
@@ -102,6 +100,27 @@ knn_accuracy = accuracy_score(y_test, knn_y_pred)
 print('KNN Accuracy: %.2f' % (knn_accuracy*100))
 
 #SVM 
+C = 5.0
+models = (
+    svm.SVC(kernel='linear', C=C),
+    svm.LinearSVC(C=C, max_iter=10000),
+    svm.SVC(kernel='rbf', gamma=0.1, C=C),
+    svm.SVC(kernel='poly', degree=1.5, gamma='auto', C=C)
+)
+models = [clf.fit(X_train, y_train) for clf in models]
+scores = [clf.score(X_test, y_test) for clf in models]
+highest_score = max(scores)
+index = scores.index(highest_score)
+svm_y_pred = models[index].predict(X_test)
+svm_score = models[index].score(X_test, y_test)
+print('SVM score: %.2f' % (svm_score*100))
+svm_accuracy = accuracy_score(y_test, svm_y_pred)
+print('SVM Accuracy: %.2f' % (svm_accuracy*100))
+
+
+
+
+
 
 
 
