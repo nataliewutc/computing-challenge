@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from typing import Union
 
 #Data cleaning 
 data = pd.read_csv('Crystal_structure.csv')
@@ -99,6 +100,8 @@ knn_score = best_model.score(X_test, y_test)
 print('KNN Score: %.2f' % (knn_score*100))
 knn_accuracy = accuracy_score(y_test, knn_y_pred)
 print('KNN Accuracy: %.2f' % (knn_accuracy*100))
+
+#SVM 
 
 
 
