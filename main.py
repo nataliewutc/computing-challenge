@@ -2,16 +2,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn import svm
-from typing import Union
 from scipy.stats import norm
 import seaborn as sns
-from typing import List
-import scipy.fft
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
 #Data cleaning 
 data = pd.read_csv('Crystal_structure.csv')
@@ -64,21 +62,43 @@ for i in range(len(data_minmax[:10])):
 #Training and testing data split 
 X = data_minmax[name_columns[:10]].to_numpy()
 y = data_minmax[name_columns[10]].to_numpy()
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=100)
 
 # Logistic regression 
-classifier = LogisticRegression().fit(X_train, y_train)
-y_pred = classifier.predict(X_test)
-score = classifier.score(X_test, y_test)
-print(score)
-accuracy = accuracy_score(y_test, y_pred)
-print('Accuracy: %.2f' % (accuracy*100))
-
-#KNN 
+logistic = LogisticRegression().fit(X_train, y_train)
+logistic_y_pred = logistic.predict(X_test)
+logistic_score = logistic.score(X_test, y_test)
+print('Logistic Regression Score: %.2f' %(logistic_score*100))
+logistic_accuracy = accuracy_score(y_test, logistic_y_pred)
+print('Logistic Regression Accuracy: %.2f' % (logistic_accuracy*100))
 
 #Random forest 
+forest = RandomForestClassifier().fit(X_train,y_train)
+forest_y_pred = forest.predict(X_test)
+forest_score = forest.score(X_test, y_test)
+print('Forest score: %.2f' % (forest_score*100))
+forest_accuracy = accuracy_score(y_test, forest_y_pred)
+print('Forest Accuracy: %.2f' % (forest_accuracy*100))
 
-#SVM 
+#KNN
+models = []
+k_values = list(range(1,15))
+for k in k_values:
+    model= KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)
+    models.append(model)
+scores = [model.score(X_test, y_test) for model in models]
+highest_score = max(scores)
+index = scores.index(highest_score)
+best_model = KNeighborsClassifier(n_neighbors=index).fit(X_train, y_train)
+fig, ax =plt.subplots()
+ax.bar(k_values, scores)
+ax.set_xlabel('Number of Neighbours')
+ax.set_ylabel('Score')
+knn_y_pred = best_model.predict(X_test)
+knn_score = best_model.score(X_test, y_test)
+print('KNN Score: %.2f' % (knn_score*100))
+knn_accuracy = accuracy_score(y_test, knn_y_pred)
+print('KNN Accuracy: %.2f' % (knn_accuracy*100))
 
 
 
