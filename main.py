@@ -12,6 +12,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from typing import Union
 import sklearn.metrics
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedStratifiedKFold
+from IPython.display import display
+from time import time
 
 #Data cleaning 
 data = pd.read_csv('Crystal_structure.csv')
@@ -120,14 +124,84 @@ print('SVM Accuracy: %.2f' % (svm_accuracy*100))
 
 #Classification report 
 target_names = ['cubic', 'tetragonal', 'orthorhombic','rhombohedral']
-logistic_report = sklearn.metrics.classification_report( y_test, logistic_y_pred, target_names=target_names) 
-knn_report = sklearn.metrics.classification_report( y_test, knn_y_pred, target_names=target_names) 
-forest_report = sklearn.metrics.classification_report( y_test, forest_y_pred, target_names=target_names) 
-svm_report = sklearn.metrics.classification_report( y_test, svm_y_pred, target_names=target_names) 
+knn_report = sklearn.metrics.classification_report( y_test, knn_y_pred, target_names=target_names, zero_division = 0) 
+forest_report = sklearn.metrics.classification_report( y_test, forest_y_pred, target_names=target_names, zero_division = 0)  
 print(knn_report)
 print(forest_report)
 
+#Cross validation for random forest classifier 
 
+def get_sample_numbers():
+    models = dict()
+    # explore ratios from 10% to 100% in 10% increments
+    for i in np.arange(0.1, 1.1, 0.2):
+        key = '%.1f' % i
+        if i == 1.0:
+            i = None
+        models[key] = RandomForestClassifier(max_samples=i)
+    return models
+
+def get_number_of_features():
+    models = dict()
+    # number of features from 1 to 7
+    for i in range(1,8):
+        models[str(i)] = RandomForestClassifier(max_features=i)
+    return models
+
+def get_number_of_trees():
+    models = dict()
+    n_trees = [10, 50, 100, 200]
+    for n in n_trees:
+        models[str(n)] = RandomForestClassifier(n_estimators=n)
+    return models
+
+def get_tree_depth():
+    models = dict()
+    # consider tree depths from 1 to 5 and None=full
+    depths = [i for i in range(1,6)] + [None]
+    for n in depths:
+        models[str(n)] = RandomForestClassifier(max_depth=n)
+    return models
+
+# evaluate a given model using cross-validation
+def evaluate_model(model, X_test, y_test):
+    cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
+    scores = cross_val_score(model, X, y, scoring='accuracy', cv=cv, n_jobs=-1)
+    return scores
+
+# evaluate the models and store results
+def get_scores(models, column_name):
+    results, names, mean, std = list(), list(), list(), list()
+    for name, model in models.items():
+        #start_time = time()
+        scores = evaluate_model(model, X_test, y_test)
+        #print(name + ' took ' + str(time()-start_time))
+        results.append(scores)
+        names.append(name)
+        mean.append(np.mean(scores))
+        std.append(np.std(scores))
+    data = {'Name' : names,
+           'Mean' : mean,
+           'Standard deviation' : std}
+    results = pd.DataFrame(data).rename(columns={"Name": column_name})
+    return results 
+        
+# get the different hyperparameters to evaluate
+sample_sizes = get_sample_numbers()
+sample_size_data = get_scores(sample_sizes, 'Sample sizes')
+display(sample_size_data)
+
+number_of_features = get_number_of_features()
+num_of_features_data = get_scores(number_of_features, 'Number of features')
+display(num_of_features_data)
+
+number_of_trees = get_number_of_trees()
+num_of_trees_data = get_scores(number_of_trees, 'Number of trees')
+display(num_of_trees_data)
+
+tree_depth = get_tree_depth()
+tree_depth_data = get_scores(tree_depth, 'Tree depth')
+display(tree_depth_data)
 
 
 
