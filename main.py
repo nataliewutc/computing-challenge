@@ -61,16 +61,21 @@ del ohe_encoded['B']
 ohe_encoded = pd.concat([ohe_encoded, a], axis=1)
 ohe_encoded = pd.concat([ohe_encoded, b], axis=1)
 
-#Min-max scaling 
-data_minmax = ohe_encoded.copy()
-name_columns = list(data_minmax.columns)
-for i in range(len(data_minmax[:10])):  
-    min_value = min(data_minmax[name_columns[i]])
-    max_value = max(data_minmax[name_columns[i]])
-    diff = int(max_value) - int(min_value)
-    data_minmax[name_columns[i]] = data_minmax[name_columns[i]].apply(lambda x: (x - min_value) / diff) 
+# Min-max scaling 
+def min_max_scaling(data, min_idx=0, max_idx=10):
+    data_minmax = data.copy()
+    name_columns = list(data_minmax.columns)
+    for i in range(min_idx, max_idx):  
+        min_value = min(data_minmax[name_columns[i]])
+        max_value = max(data_minmax[name_columns[i]])
+        diff = int(max_value) - int(min_value)
+        data_minmax[name_columns[i]] = data_minmax[name_columns[i]].apply(lambda x: (x - min_value) / diff) 
+    return data_minmax
+
+data_minmax = min_max_scaling(ohe_encoded, 0, 10)
     
 # Test-train split 
+name_columns = list(data_minmax.columns)
 X = data_minmax[name_columns[:10]].to_numpy()
 y = data_minmax[name_columns[10]].to_numpy()
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state = 42)
@@ -136,17 +141,15 @@ print(knn_report)
 
 def get_sample_numbers():
     models = dict()
-    # explore ratios from 10% to 100% in 10% increments
-    for i in np.arange(0.1, 1.1, 0.2):
-        key = '%.1f' % i
-        if i == 1.0:
-            i = None
-        models[key] = RandomForestClassifier(max_samples=i)
+    for s in np.arange(0.1, 1.1, 0.2):
+        key = '%.1f' % s
+        if s == 1.0:
+            s = None
+        models[key] = RandomForestClassifier(max_samples=s)
     return models
 
 def get_number_of_features():
     models = dict()
-    # number of features from 1 to 5
     for i in range(1,6):
         models[str(i)] = RandomForestClassifier(max_features=i)
     return models
@@ -161,9 +164,9 @@ def get_number_of_trees():
 def get_tree_depth():
     models = dict()
     # consider tree depths from 1 to 5 and None=full
-    depths = [i for i in range(1,6)] + [None]
-    for n in depths:
-        models[str(n)] = RandomForestClassifier(max_depth=n)
+    depths = [d for d in range(1,6)] + [None]
+    for d in depths:
+        models[str(d)] = RandomForestClassifier(max_depth=d)
     return models
 
 # evaluate a given model using cross-validation
