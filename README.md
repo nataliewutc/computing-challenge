@@ -1,7 +1,7 @@
 # Computing challenge - Machine learning 
 
 <p align="center">
-  <img src="confusion_matrix.png">
+  <img width="460" height="300" src="confusion_matrix.png">
 </p>
 
 ## Aim of project 
