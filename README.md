@@ -5,7 +5,7 @@
 </p>
 Image of the interactive confusion matrix showing the effect of each feature on the model. 
 
-## Aim of project 
+## Aim of the project 
 This project uses real-world data to build, validate and analyse the results of a classifier to predict the crystalline structure of perovskites, depending on various features such as the atomic radii and electronegativity of their components. 
 
 ## Background on perovskites 
