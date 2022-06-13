@@ -13,3 +13,5 @@ The dataset in the file Crystal_structure.csv provided for the Computing Challen
 
 ## Remarks 
 The main.py file consists of the full code whilst the 3 jupyter notebooks divides the code into 3 stages, with explanations and comments provided in between each cell for clarity so the reasoning could be followed. 
+
+The machine learning was done mainly using the scikit learn and pandas libraries. 
