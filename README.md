@@ -1,6 +1,7 @@
 # Computing challenge - Machine learning 
+
 <p align="center">
-  <img src="[http://www.fillmurray.com/460/300](https://user-images.githubusercontent.com/81494714/173462012-789e562c-d9da-4f5f-bed5-91e9a6d58df8.png)">
+  <img src="confusion_matrix.png">
 </p>
 
 ## Aim of project 
